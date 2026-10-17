@@ -95,13 +95,28 @@ public class PersonMenu extends JFrame{
         String nama = textNama.getText();
         String kategori = CBKategori.getSelectedItem().toString();
         String warna = CBWarna.getSelectedItem().toString();
+
+        // error handle if inputing already exist id
+        ResultSet cekid = database.Fetch("SELECT id from trader");
+        try{
+            while(cekid.next()){
+                if(id.equals(cekid.getString("id"))){
+                    JOptionPane.showMessageDialog(null, "ID sudah digunakan!","Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
         try{ // try catch to handle tahunLahir is not integer
             int tahunLahir = Integer.parseInt(textTahunLahir.getText());
 
             // check if each of form data is still empty
             if(id.equals("") || nama.equals("") || kategori.equals("") || warna.equals("")){
                 JOptionPane.showMessageDialog(null, "Semua data perlu diisi!");
-            }else {
+            }else{
                 if(selectIdx != -1){ // if table data is selected then update data
                     String updateQuery = "UPDATE trader SET nama = '" + nama + "', tahunLahir = '" + tahunLahir + "', kategori = '" + kategori + "', warnaMcLaren = '" + warna + "' WHERE id = '" + id + "';";
                     database.ManipulateData(updateQuery);
