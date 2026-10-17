@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.sql.*;
 
 public class PersonMenu extends JFrame{
     // Swing GUI Components
@@ -16,18 +16,14 @@ public class PersonMenu extends JFrame{
     private JComboBox CBKategori;
     private JPanel mainPane;
     private JComboBox CBWarna;
-    private JLabel Judul;
 
     // Table and List attributes
-    private ArrayList<Person> PersonData;
+    private Database database;
     private int selectIdx;
 
     // constructor
     public PersonMenu(){
-        PersonData = new ArrayList<>(); // Data list instantiation
-
-        // Dummy data
-        PersonData.add(new Person("P001", "Andi", 2000, "Crypto", "Hijau"));
+        database = new Database(); // database instantiation
 
         personTable.setModel(setTable()); // init table
 
@@ -69,13 +65,24 @@ public class PersonMenu extends JFrame{
         personTable.addMouseListener(new MouseAdapter(){
             @Override
             public void mousePressed(MouseEvent e){
-                selectIdx = personTable.getSelectedRow();
-                textId.setText(PersonData.get(selectIdx).getId());
-                textNama.setText(PersonData.get(selectIdx).getNama());
-                textTahunLahir.setText(String.valueOf(PersonData.get(selectIdx).getTahunLahir()));
-                CBKategori.setSelectedItem(PersonData.get(selectIdx).getKategori());
-                CBWarna.setSelectedItem(PersonData.get(selectIdx).getWarna());
+                selectIdx = personTable.getSelectedRow(); // set selected index
+                textId.setEditable(false);
 
+                // fetch data from table
+                String curId = personTable.getModel().getValueAt(selectIdx, 0).toString();
+                String curNama = personTable.getModel().getValueAt(selectIdx, 1).toString();
+                String curTahun = personTable.getModel().getValueAt(selectIdx, 2).toString();
+                String curKategori = personTable.getModel().getValueAt(selectIdx, 3).toString();
+                String curWarna = personTable.getModel().getValueAt(selectIdx, 4).toString();
+
+                // set text field
+                textId.setText(curId);
+                textNama.setText(curNama);
+                textTahunLahir.setText(curTahun);
+                CBKategori.setSelectedItem(curKategori);
+                CBWarna.setSelectedItem(curWarna);
+
+                // change add to update and show delete button
                 addButton.setText("Update");
                 deleteButton.setVisible(true);
             }
@@ -96,15 +103,12 @@ public class PersonMenu extends JFrame{
                 JOptionPane.showMessageDialog(null, "Semua data perlu diisi!");
             }else {
                 if(selectIdx != -1){ // if table data is selected then update data
-                    Person edited = PersonData.get(selectIdx);
-                    edited.setId(id);
-                    edited.setNama(nama);
-                    edited.setTahunLahir(tahunLahir);
-                    edited.setKategori(kategori);
-                    edited.setWarna(warna);
+                    String updateQuery = "UPDATE trader SET nama = '" + nama + "', tahunLahir = '" + tahunLahir + "', kategori = '" + kategori + "', warnaMcLaren = '" + warna + "' WHERE id = '" + id + "';";
+                    database.ManipulateData(updateQuery);
                     JOptionPane.showMessageDialog(null, "Data berhasil diubah!");
                 }else{ // else add data
-                    PersonData.add(new Person(id, nama, tahunLahir, kategori, warna));
+                    String insertQuery = "INSERT INTO trader VALUES('" + id + "','" + nama + "','" + tahunLahir + "','" + kategori + "','" + warna + "');";
+                    database.ManipulateData(insertQuery);
                     JOptionPane.showMessageDialog(null, "Data berhasil ditambahkan!");
                 }
                 personTable.setModel(setTable());
@@ -120,8 +124,8 @@ public class PersonMenu extends JFrame{
         // create confirmation form before deleting
         int yesOrNo = JOptionPane.showConfirmDialog(null, "Yakin ingin menghapus data ini?", "Delete Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if(yesOrNo == JOptionPane.YES_OPTION){
-            PersonData.remove(selectIdx);
-            selectIdx = -1;
+            String deleteQuery = "DELETE from trader WHERE id = '" + personTable.getModel().getValueAt(selectIdx, 0).toString() + "';";
+            database.ManipulateData(deleteQuery);
             resetForm();
             personTable.setModel(setTable());
         }
@@ -138,6 +142,7 @@ public class PersonMenu extends JFrame{
 
         // reset form data
         selectIdx = -1;
+        textId.setEditable(true);
         deleteButton.setVisible(false);
         addButton.setText("Add");
     }
@@ -147,9 +152,19 @@ public class PersonMenu extends JFrame{
         Object[] tHead = {"ID", "Nama", "Tahun Lahir", "Kategori", "WarnaMcLaren"};
         DefaultTableModel ret = new DefaultTableModel(null, tHead);
 
-        for(Person obj : PersonData){
-            Object[] row = {obj.getId(), obj.getNama(), obj.getTahunLahir(), obj.getKategori(), obj.getWarna()};
-            ret.addRow(row);
+        try{
+            ResultSet resultSet = database.Fetch("SELECT * from trader"); // fetch data from database
+            while(resultSet.next()){ // fill the GUI table
+                Object[] row = new Object[5];
+                row[0] = resultSet.getString("id");
+                row[1] = resultSet.getString("nama");
+                row[2] = resultSet.getString("tahunLahir");
+                row[3] = resultSet.getString("kategori");
+                row[4] = resultSet.getString("warnaMcLaren");
+                ret.addRow(row);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return ret;
     }
