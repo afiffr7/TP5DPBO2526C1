@@ -18,7 +18,7 @@ Kemudian program juga dapat mengambil data dari database di xampp untuk menampil
 ## Dokumentasi
 
 ### Menambahkan data
-![Tambah Data](Dokumentasi/AddData.gif)
+![Tambah Data](Dokumentasi/TambahData.gif)
 
 ### Update data
 ![Update Data](Dokumentasi/PerbaruiData.gif)
