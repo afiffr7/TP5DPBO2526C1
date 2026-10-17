@@ -21,13 +21,13 @@ Kemudian program juga dapat mengambil data dari database di xampp untuk menampil
 ![Tambah Data](Dokumentasi/AddData.gif)
 
 ### Update data
-![Update Data](Dokumentasi/UpdateData.gif)
+![Update Data](Dokumentasi/PerbaruiData.gif)
 
 ### Delete data
-![Form Confirm](Dokumentasi/DeleteConfirmation.png)
+![Form Confirm](Dokumentasi/DeleteConfirmationPopUp.png)
 ![Hapus Data](Dokumentasi/DeleteData.gif)
 
 ### Error Handle
 ![Tahun Bukan Angka](Dokumentasi/ErrorHandleTahunHarusAngka.png)
-![Form Kosong](Dokumentasi/ErrorHandleDataKosong.png)
+![Form Kosong](Dokumentasi/DataMissing.png)
 ![id sudah dipakai](Dokumentasi/ErrorHandleIdSudahDigunakan.png)
